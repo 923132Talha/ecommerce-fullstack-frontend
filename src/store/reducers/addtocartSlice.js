@@ -2,13 +2,13 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 export const getCart = createAsyncThunk("cart/getcart", async () => {
-    const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/cart`, { withCredentials: true });
+    const response = await axios.get(`http://localhost:3000/api/cart`, { withCredentials: true });
     return response.data;
 });
 
 export const addToCart = createAsyncThunk("cart/addtocart", async ({ productId, quantity }, { rejectWithValue }) => {
     try {
-        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/cart/add`, { productId, quantity }, { headers: { "Content-Type": "application/json" }, withCredentials: true });
+        const response = await axios.post(`http://localhost:3000/api/cart/add`, { productId, quantity }, { headers: { "Content-Type": "application/json" }, withCredentials: true });
         return response.data;
     } catch (error) {
         return rejectWithValue(error.response ? error.response.data : "Something went wrong!");
@@ -16,14 +16,19 @@ export const addToCart = createAsyncThunk("cart/addtocart", async ({ productId, 
 });
 
 export const deletefromCart = createAsyncThunk("cart/deletefromcart", async (productId) => {
-    const response = await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/cart/delete`,
+    const response = await axios.delete(`http://localhost:3000/api/cart/delete`,
         {
-            data:{productId},
+            data: { productId },
             headers: { "Content-Type": "application/json" },
             withCredentials: true
         });
     return response.data;
 });
+
+export const clearCart = createAsyncThunk("cart/clearcart", async () => {
+    const response = await axios.delete("http://localhost:3000/api/cart/clearcart", { withCredentials: true });
+    return response.data;
+})
 
 const cartSlice = createSlice(
     {
@@ -59,6 +64,15 @@ const cartSlice = createSlice(
             }).addCase(deletefromCart.rejected, (state, action) => {
                 state.cartLoading = false;
                 state.error = action.error.message;
+            }).addCase(clearCart.pending,(state)=>{
+                state.cartLoading=true;
+                state.error=null;
+            }).addCase(clearCart.fulfilled,(state)=>{
+                state.cartLoading=false;
+                state.items=[];
+            }).addCase(clearCart.rejected,(state,action)=>{
+                state.cartLoading=false;
+                state.error=action.error.message;
             })
         }
     }

@@ -1,16 +1,21 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+export const getUser = createAsyncThunk("user/getuser", async () => {
+    const response = await axios.get(`http://localhost:3000/api/user`);
+    return response.data;
+});
+
 // Check if the user is authenticated
 export const checkUser = createAsyncThunk("user/auth", async () => {
-    const response = await axios.get(`http://${process.env.REACT_APP_BACKEND_URL}/api/user/check`, { withCredentials: true });
+    const response = await axios.get(`http://localhost:3000/api/user/check`, { withCredentials: true });
     return response.data;
 });
 
 // Register user
 export const registerUser = createAsyncThunk("user/register", async (userData, { rejectWithValue }) => {
     try {
-        const response = await axios.post(`http://${process.env.REACT_APP_BACKEND_URL}/api/user/signup`, userData, { withCredentials: true });
+        const response = await axios.post(`http://localhost:3000/api/user/signup`, userData, { withCredentials: true });
         return response.data;
     } catch (error) {
         return rejectWithValue(error.response?.data?.msg || "Registration failed"); // Handling error message
@@ -20,7 +25,7 @@ export const registerUser = createAsyncThunk("user/register", async (userData, {
 // Login user
 export const loginUser = createAsyncThunk("user/login", async (userData, { rejectWithValue }) => {
     try {
-        const response = await axios.post(`http://${process.env.REACT_APP_BACKEND_URL}/api/user/login`, userData, { withCredentials: true });
+        const response = await axios.post(`http://localhost:3000/api/user/login`, userData, { withCredentials: true });
         return response.data;
     } catch (error) {
         return rejectWithValue(error.response?.data?.msg || "Login failed"); // Handling error message
@@ -29,7 +34,7 @@ export const loginUser = createAsyncThunk("user/login", async (userData, { rejec
 
 // Logout user
 export const logoutUser = createAsyncThunk("user/logout", async () => {
-    const response = await axios.post(`http://${process.env.REACT_APP_BACKEND_URL}/api/user/logout`, {}, { withCredentials: true });
+    const response = await axios.post(`http://localhost:3000/api/user/logout`, {}, { withCredentials: true });
     return response.data;
 });
 
@@ -40,10 +45,20 @@ const userSlice = createSlice({
         loading: false,
         error: null,
         user: null,
+        userList: []
     },
     reducers: {},
     extraReducers: (builder) => {
-        builder
+        builder.addCase(getUser.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        }).addCase(getUser.fulfilled, (state, action) => {
+            state.loading = false;
+            state.userList = action.payload;
+        }).addCase(getUser.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.error.message;
+        })
             // Check User
             .addCase(checkUser.pending, (state) => {
                 state.loading = true;

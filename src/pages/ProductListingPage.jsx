@@ -42,7 +42,7 @@ const ProductListingPage = () => {
   }, [dispatch]);
 
   const filteredProducts = products.filter(product => {
-    const searchMatch = product.name.toLowerCase().includes(query.toLowerCase());
+    const searchMatch = product.name?.toLowerCase().includes(query.toLowerCase());
     const categoryMatch = filter.category ? product.category === filter.category : true;
     const brandMatch = filter.brand.length === 0 || filter.brand.includes(product.brand);
     const priceMatch = product.price <= filter.maxPrice;

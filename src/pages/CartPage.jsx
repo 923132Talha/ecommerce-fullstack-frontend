@@ -11,11 +11,10 @@ const CartPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items, cartLoading } = useSelector(state => state.cart);
-  const { products, loading, error } = useSelector(state => state.products);
 
   useEffect(() => {
     dispatch(getCart());
-  }, [dispatch,loading]);
+  }, [dispatch]);
 
   const handleDelete = async (productId) => {
     await dispatch(deletefromCart(productId));
@@ -23,8 +22,8 @@ const CartPage = () => {
   }
 
   const totalPrice = Array.isArray(items) ? items.reduce((acc, item) => acc + item.product.price * item.quantity, 0) : 0;
-  if (loading) {
-    <div className='fixed inset-0 bg-white flex justify-center items-center z-50'>
+  if (cartLoading) {
+    return <div className='fixed inset-0 bg-white flex justify-center items-center z-50'>
       <img src="/loading.gif" alt="loading" className='w-32 h-32' />
     </div>
   }
@@ -90,7 +89,11 @@ const CartPage = () => {
                 <span className='text-[16px]'>Total:</span>
                 <span className='text-[20px]'>${totalPrice.toFixed(2)}</span>
               </div>
-              <button className='w-[248px] h-[54px] text-white text-[18px] bg-[#00B517] rounded-lg'>
+              {
+
+              }
+              <button disabled={items.length === 0} className={`w-[248px] h-[54px] text-white text-[18px] bg-[#00B517] rounded-lg ${items.length === 0 ? "cursor-not-allowed" : "cursor-pointer"}`}
+                onClick={() => (navigate(`/shipdetails`))}>
                 Checkout
               </button>
             </div>

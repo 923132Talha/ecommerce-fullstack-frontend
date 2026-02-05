@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { createProduct } from '../store/reducers/productSlice';
+import { createProduct} from '../store/reducers/productSlice';
 
 const CreateProduct = () => {
   const dispatch = useDispatch();
@@ -16,28 +16,31 @@ const CreateProduct = () => {
     desc: "",
     category: "",
     stock: "",
-    img: ""
+    img: null
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const productData = new FormData();
+    try {
+      const productData = new FormData();
 
-    productData.append("name", formData.name)
-    productData.append("price", formData.price)
-    productData.append("desc", formData.desc)
-    productData.append("category", formData.category)
-    productData.append("stock", formData.stock);
+      productData.append("name", formData.name)
+      productData.append("price", formData.price)
+      productData.append("desc", formData.desc)
+      productData.append("category", formData.category)
+      productData.append("stock", formData.stock);
 
-    if (imgfile) {
-      productData.append("img", imgfile)
-    };
+      if (imgfile) {
+        productData.append("img", imgfile)
+      };
 
-   const response= await dispatch(createProduct(productData));
-    if(createProduct.fulfilled.match(response)){
-      navigate("/admin")
+      await dispatch(createProduct(productData));
+
+      navigate("/list");
+
+    } catch (error) {
+      console.log("error in create product component", error);
     }
-
   }
 
   const handleImageUpload = (e) => {
@@ -51,7 +54,7 @@ const CreateProduct = () => {
   }
 
   return (
-    <div className="w-[1180px] m-auto my-16 flex flex-col gap-6">
+    <div className="w-[1180px] overflow-y-hidden m-auto my-16 flex flex-col gap-6">
       <h1 className="text-[29px] font-semibold">Create Product</h1>
       <form className="flex flex-col gap-9" encType='multipart/form-data' onSubmit={handleSubmit}>
         {/* Product name */}
@@ -84,7 +87,7 @@ const CreateProduct = () => {
         <div className="flex w-[600px] justify-around items-center text-[20px]">
           <label>Desc:</label>
           <input
-            type="text"
+            type="textarea"
             name="desc"
             placeholder="Product description"
             className="bg-gray-100 text-[#8B96A5] p-2 rounded-md h-[100px] w-[300px]"
@@ -143,7 +146,7 @@ const CreateProduct = () => {
         {/* Submit button */}
         <button
           type="submit"
-          className="mt-4 bg-blue-600 text-white p-2 rounded disabled:opacity-50"
+          className="mt-4 bg-blue-600 text-white p-2 rounded disabled:opacity-50 w-89 h-11 cursor-pointer"
           disabled={loading}
         >
           {loading ? "Creating Product..." : "Create Product"}
